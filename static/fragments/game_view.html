@@ -1,0 +1,69 @@
+<div id="game-view">
+
+  <!-- ===== TOP BAR ===== -->
+  <div id="top-bar">
+    <span id="energy">
+      Energy: <span id="energy-value">0</span>
+    </span>
+
+    <span id="environment">
+      Environment: <span id="environment-value">0</span>
+    </span>
+  </div>
+
+  <!-- ===== GAME CANVAS ===== -->
+  <div id="canvas-container">
+    <canvas id="game-canvas" width="800" height="500"></canvas>
+  </div>
+
+  <!-- ===== BOTTOM PANEL / MODULES ===== -->
+  <div id="bottom-panel">
+
+    <!-- Default message -->
+    <div class="module" id="module-default">
+      <p>Select a tile to see actions.</p>
+    </div>
+
+    <!-- Tile is not buyable -->
+    <div class="module hidden" id="module-not-buyable">
+      <p>This tile cannot be bought.</p>
+    </div>
+
+    <!-- Tile is buyable -->
+    <div class="module hidden" id="module-buyable">
+      <p>Tile price: <span id="buyable-price">100</span> energy</p>
+      <button onclick="buyTile()">Buy Tile</button>
+    </div>
+
+    <!-- Tile is empty, show building buy menu -->
+    <div class="module hidden" id="module-empty">
+      <p>Select a building category:</p>
+      <div id="category-buttons">
+        <button onclick="selectCategory('offense')">Offense</button>
+        <button onclick="selectCategory('defense')">Defense</button>
+          <button onclick="selectCategory('utility')">Utility</button>
+      </div>
+        <div id="building-buttons" class="hidden">
+          <!-- Tower buttons will appear here when a category is clicked -->
+          <button onclick="selectTower('tower1')">Tower 1</button>
+          <button onclick="selectTower('tower2')">Tower 2</button>
+          <button onclick="backToCategories()">Return</button>
+        </div>
+    </div>
+
+      <!-- Tile has a building, show upgrade info -->
+      <div class="module hidden" id="module-occupied">
+        <p>Building info:</p>
+        <div id="building-info">
+          <p>Name: <span id="building-name">Basic Tower</span></p>
+          <p>Level: <span id="building-level">1</span></p>
+          <p>Energy production: <span id="building-energy">10</span></p>
+        </div>
+        <button onclick="upgradeBuilding()">Upgrade</button>
+      </div>
+
+  </div>
+
+
+
+</div>
