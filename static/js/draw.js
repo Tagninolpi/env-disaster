@@ -105,8 +105,9 @@ export function drawHex(ctx, x, y, size, color = "lightgreen", isSelected = fals
   ctx.lineWidth = isSelected ? 6 : 1; // thicker border for selected tile
   ctx.stroke();
 
-  ctx.lineWidth = 1;
+  // remove this: ctx.lineWidth = 1;
 }
+
 
 /* ---------- Utility ---------- */
 export function clearCanvas(ctx, width, height) {

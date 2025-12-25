@@ -48,4 +48,8 @@ window.selectCategory = bottomPanel.selectCategory;
 window.selectTower = bottomPanel.selectTower;
 window.backToCategories = bottomPanel.backToCategories;
 
+window.showBuildingDetails = bottomPanel.showBuildingDetails;
+window.backToBuildings = bottomPanel.backToBuildings;
+window.buyBuilding = bottomPanel.buyBuilding;
+
 loadPage("main_menu");
