@@ -1,5 +1,5 @@
 import random
-tile_types = ["forest","plain","desert","moutain","sea","river"]
+tile_types = ["forest","plain","desert","mountain","sea","river"]
 
 class Player:
     def __init__(self,energy,env_bar,tile_price,nb_rings):

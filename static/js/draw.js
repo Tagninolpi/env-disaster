@@ -2,22 +2,22 @@ let currentHexSettings = null;
 
 /* ---------- TILE COLOR ---------- */
 const ENV_COLORS = {
-  sea: "#4da6ff",
-  river: "#3399ff",
-  plain: "#99cc66",
-  forest: "#339933",
-  desert: "#ffcc66",
-  mountain: "#999966"
+  sea: "#003366",       // dark blue
+  river: "#66ccff",     // light blue
+  forest: "#006600",    // dark green
+  plain: "#99ff66",     // light green
+  desert: "#ffcc00",    // yellow
+  mountain: "#654321"   // dark brown
 };
 
 function tileToColor(tile) {
-  const baseColor = ENV_COLORS[tile.tile_type] || "#555";
+  const baseColor = ENV_COLORS[tile.tile_type] || "#000000";
 
   // Apply mask depending on status
-  if (typeof tile.status === "object") return baseColor; // building: show environment color
-  if (tile.status === "locked") return shadeColor(baseColor, -90);   // darker
-  if (tile.status === "buyable") return shadeColor(baseColor, -60);  // slightly dark
-  if (tile.status === "empty") return baseColor;                      // normal
+  if (typeof tile.status === "object") return baseColor; // building: normal color
+  if (tile.status === "locked") return shadeColor(baseColor, -8000);
+  if (tile.status === "buyable") return shadeColor(baseColor, -40);
+  if (tile.status === "empty") return baseColor;                
 
   return baseColor;
 }
