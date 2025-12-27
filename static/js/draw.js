@@ -1,29 +1,61 @@
-export let currentTiles = [];
-export let selectedTileId = null; // currently selected tile
+let currentHexSettings = null;
 
-/* ---------- Refresh / draw entire map ---------- */
-export function refresh_view(tiles = [], selectedId = null) {
+/* ---------- TILE COLOR ---------- */
+const ENV_COLORS = {
+  sea: "#4da6ff",
+  river: "#3399ff",
+  plain: "#99cc66",
+  forest: "#339933",
+  desert: "#ffcc66",
+  mountain: "#999966"
+};
+
+function tileToColor(tile) {
+  const baseColor = ENV_COLORS[tile.tile_type] || "#555";
+
+  // Apply mask depending on status
+  if (typeof tile.status === "object") return baseColor; // building: show environment color
+  if (tile.status === "locked") return shadeColor(baseColor, -90);   // darker
+  if (tile.status === "buyable") return shadeColor(baseColor, -60);  // slightly dark
+  if (tile.status === "empty") return baseColor;                      // normal
+
+  return baseColor;
+}
+
+/* ---------- COLOR UTILS ---------- */
+function shadeColor(color, percent) {
+  const num = parseInt(color.slice(1),16);
+  let r = (num >> 16) & 0xFF;
+  let g = (num >> 8) & 0xFF;
+  let b = num & 0xFF;
+
+  r = Math.min(255, Math.max(0, r + percent));
+  g = Math.min(255, Math.max(0, g + percent));
+  b = Math.min(255, Math.max(0, b + percent));
+
+  return `rgb(${r},${g},${b})`;
+}
+
+/* ---------- DRAW / REFRESH ---------- */
+export function refresh_view(hexes, selectedId = null) {
+  if (!hexes || hexes.length === 0) return;
+
   const canvas = document.getElementById("game-canvas");
   if (!canvas) return;
 
   const ctx = canvas.getContext("2d");
-
-  const canvasSize = Math.min(canvas.width, canvas.height);
-  const hexSize = canvasSize / 12;
-  const nbRings = computeMaxRings(canvasSize, hexSize);
-
-  const mapTiles = tiles.length > 0 ? tiles : createHexList(nbRings);
+  const size = Math.min(canvas.width, canvas.height) / 12;
 
   clearCanvas(ctx, canvas.width, canvas.height);
+  drawMap(ctx, hexes, canvas.width / 2, canvas.height / 2, size, selectedId);
 
-  drawMap(ctx, mapTiles, canvas.width / 2, canvas.height / 2, nbRings, hexSize, selectedId);
-
-  currentTiles = mapTiles;
-  window.currentHexSettings = { hexSize, nbRings };
+  currentHexSettings = { hexSize: size };
 }
 
-/* ---------- Hit detection for clicks ---------- */
-export function getTileFromClick(event) {
+/* ---------- HIT DETECTION ---------- */
+export function getTileFromClick(event, hexes) {
+  if (!hexes) return null;
+
   const canvas = document.getElementById("game-canvas");
   if (!canvas) return null;
 
@@ -34,116 +66,52 @@ export function getTileFromClick(event) {
   const x = (event.clientX - rect.left) * scaleX;
   const y = (event.clientY - rect.top) * scaleY;
 
-  const hitSize = (window.currentHexSettings?.hexSize || 20) * 1.1;
+  const hitSize = (currentHexSettings?.hexSize || 20) * 1.1;
 
-  for (let tile of currentTiles) {
-    if (tile.x == null || tile.y == null) continue;
+  for (const tile of hexes) {
+    if (tile.x == null) continue;
     const dx = x - tile.x;
     const dy = y - tile.y;
-    if (Math.sqrt(dx * dx + dy * dy) <= hitSize) {
-      return tile;
-    }
+    if (Math.hypot(dx, dy) <= hitSize) return tile;
   }
-
-  return null; // clicked outside any tile
+  return null;
 }
 
-/* ---------- Draw hex map and store tile positions ---------- */
-export function drawMap(ctx, tiles, centerX, centerY, nbRings, size, selectedId = null) {
-  if (!tiles.length) return;
+/* ---------- MAP DRAWING ---------- */
+export function drawMap(ctx, hexes, cx, cy, size, selectedId) {
+  for (const tile of hexes) {
+    const x = cx + size * Math.sqrt(3) * (tile.q + tile.r / 2);
+    const y = cy + size * 1.5 * tile.r;
 
-  const directions = [
-    [1, -1], [1, 0], [0, 1], [-1, 1], [-1, 0], [0, -1],
-  ];
+    const color = tileToColor(tile);
+    const selected = tile.id === selectedId;
 
-  let tileIndex = 0;
+    drawHex(ctx, x, y, size, color, selected);
 
-  // Draw center hex
-  drawHex(ctx, centerX, centerY, size, tiles[tileIndex].color, tiles[tileIndex].id === selectedId);
-  tiles[tileIndex].x = centerX;
-  tiles[tileIndex].y = centerY;
-  tileIndex++;
-
-  for (let ring = 1; ring <= nbRings; ring++) {
-    let q = -ring;
-    let r = 0;
-
-    for (let side = 0; side < 6; side++) {
-      for (let step = 0; step < ring; step++) {
-        if (tileIndex >= tiles.length) return;
-
-        const x = centerX + size * Math.sqrt(3) * (q + r / 2);
-        const y = centerY + size * 1.5 * r;
-
-        drawHex(ctx, x, y, size, tiles[tileIndex].color, tiles[tileIndex].id === selectedId);
-        tiles[tileIndex].x = x;
-        tiles[tileIndex].y = y;
-
-        tileIndex++;
-        q += directions[side][0];
-        r += directions[side][1];
-      }
-    }
+    // store for hit detection
+    tile.x = x;
+    tile.y = y;
   }
 }
 
-/* ---------- Draw a single hex ---------- */
-export function drawHex(ctx, x, y, size, color = "lightgreen", isSelected = false) {
+/* ---------- HEX ---------- */
+export function drawHex(ctx, x, y, size, color, selected) {
   ctx.beginPath();
   for (let i = 0; i < 6; i++) {
-    const angle = Math.PI / 6 + i * Math.PI / 3; // flat-topped
-    const px = x + size * Math.cos(angle);
-    const py = y + size * Math.sin(angle);
+    const a = Math.PI / 6 + i * Math.PI / 3;
+    const px = x + size * Math.cos(a);
+    const py = y + size * Math.sin(a);
     i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
   }
   ctx.closePath();
-
   ctx.fillStyle = color;
   ctx.fill();
-
+  ctx.lineWidth = selected ? 6 : 1;
   ctx.strokeStyle = "black";
-  ctx.lineWidth = isSelected ? 6 : 1; // thicker border for selected tile
   ctx.stroke();
-
-  // remove this: ctx.lineWidth = 1;
 }
 
-
-/* ---------- Utility ---------- */
-export function clearCanvas(ctx, width, height) {
-  ctx.clearRect(0, 0, width, height);
+/* ---------- UTILS ---------- */
+function clearCanvas(ctx, w, h) {
+  ctx.clearRect(0, 0, w, h);
 }
-
-/* ---------- Create new hex list with IDs ---------- */
-export function createHexList(nbRings) {
-  const colors = ["lightgreen", "lightblue", "lightyellow", "pink", "orange", "violet"];
-  const totalHexes = 1 + 3 * nbRings * (nbRings + 1);
-
-  return Array.from({ length: totalHexes }, (_, i) => ({
-    id: i,
-    color: colors[Math.floor(Math.random() * colors.length)],
-    x: null,
-    y: null,
-    state: "empty",
-    price: 100,
-    building: null
-  }));
-}
-
-function computeMaxRings(canvasSize, hexSize) {
-  const canvasRadius = canvasSize / 2;
-  const hexStep = hexSize * 1.5;
-  return Math.floor(canvasRadius / hexStep) - 1;
-}
-
-/* ---------- Setup canvas size once ---------- */
-export function setupCanvas() {
-  const canvas = document.getElementById("game-canvas");
-  if (!canvas) return;
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width;
-  canvas.height = rect.height;
-}
-
-window.addEventListener("load", setupCanvas);
-window.addEventListener("resize", setupCanvas);
