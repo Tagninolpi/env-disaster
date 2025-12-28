@@ -12,7 +12,6 @@ const gameState = {
   nb_bought_tiles: 0,
   building_pref: {},
   buildings: {},
-  building_stats: {}
 };
 
 let selectedTileId = null;
@@ -31,7 +30,6 @@ function applyServerState(data) {
   if (data.nb_bought_tiles !== undefined) gameState.nb_bought_tiles = data.nb_bought_tiles;
   if (data.building_pref) gameState.building_pref = data.building_pref;
   if (data.buildings) gameState.buildings = data.buildings;
-  if (data.building_stats) gameState.building_stats = data.building_stats;
 
   selectedBuilding = null;
 

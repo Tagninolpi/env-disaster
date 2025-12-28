@@ -80,8 +80,10 @@ export function getTileFromClick(event, hexes) {
 /* ---------- MAP DRAWING ---------- */
 export function drawMap(ctx, hexes, cx, cy, size, selectedId) {
   for (const tile of hexes) {
-    const x = cx + size * Math.sqrt(3) * (tile.q + tile.r / 2);
-    const y = cy + size * 1.5 * tile.r;
+    //const x = cx + size * Math.sqrt(3) * (tile.q + tile.r / 2);
+    //const y = cy + size * 1.5 * tile.r;
+    const x = cx + size * 3/2 * tile.q;
+    const y = cy + size * Math.sqrt(3) * (tile.r + tile.q / 2);
 
     const color = tileToColor(tile);
     const selected = tile.id === selectedId;
@@ -98,7 +100,7 @@ export function drawMap(ctx, hexes, cx, cy, size, selectedId) {
 export function drawHex(ctx, x, y, size, color, selected) {
   ctx.beginPath();
   for (let i = 0; i < 6; i++) {
-    const a = Math.PI / 6 + i * Math.PI / 3;
+    const a = i * Math.PI / 3; 
     const px = x + size * Math.cos(a);
     const py = y + size * Math.sin(a);
     i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);

@@ -79,28 +79,86 @@
       </div>
     </div>
 
-    <!-- Building details menu -->
+    <!-- Building details menu (BUY) -->
     <div class="module hidden" id="building-details">
       <h3 id="detail-building-name">Building Name</h3>
-      <p>Price: <span id="detail-price">0</span></p>
-      <p>Energy Production: <span id="detail-production">0</span></p>
-      <p>Preferred Tile: <span id="detail-preferred-tile">-</span></p>
-      <p>Environmental Build Cost: <span id="detail-env-build">0</span></p>
-      <p>Environmental Usage Cost: <span id="detail-env-usage">0</span></p>
-      <button onclick="buyBuilding()">Buy</button>
+
+      <p>
+        Buy cost:
+        <span id="detail-price">0</span> energy
+      </p>
+
+      <p>
+        Starts at level:
+        <strong>1</strong>
+      </p>
+
+      <hr>
+
+      <p>
+        Energy production (Lv 1):
+        <span id="detail-production">0</span>
+      </p>
+
+      <p>
+        Environmental build cost:
+        <span id="detail-env-build">0</span>
+      </p>
+
+      <p>
+        Environmental usage cost:
+        <span id="detail-env-usage">0</span>
+      </p>
+
+      <p>
+        Durability:
+        <span id="detail-durability">0</span>
+      </p>
+
+      <p>
+        Preferred tiles:
+        <span id="detail-preferred-tile">-</span>
+      </p>
+
+
+      <button onclick="buyBuilding()">Buy Building</button>
       <button onclick="backToBuildings()">Return</button>
     </div>
 
+
     <!-- Tile has a building, show upgrade info -->
     <div class="module hidden" id="module-occupied">
-      <p>Building info:</p>
-      <div id="building-info">
-        <p>Name: <span id="building-name">Basic Building</span></p>
-        <p>Level: <span id="building-level">1</span></p>
-        <p>Energy production: <span id="building-energy">10</span></p>
-      </div>
+      <h3>Building</h3>
+
+      <p>Name: <span id="building-name">-</span></p>
+      <p>Level: <span id="building-level">0</span></p>
+      <p>Durability: <span id="building-durability">0</span></p>
+
+      <hr>
+
+      <p>
+        Energy production:
+        <span id="building-energy">0</span>
+        →
+        <strong><span id="building-energy-next">0</span></strong>
+      </p>
+
+      <p>
+        Environmental usage:
+        <span id="building-env">0</span>
+        →
+        <strong><span id="building-env-next">0</span></strong>
+      </p>
+
+      <p>
+        Upgrade cost:
+        <strong><span id="upgrade-cost">0</span></strong> energy
+      </p>
+
       <button onclick="upgradeBuilding()">Upgrade</button>
     </div>
+
+
 
   </div>
 

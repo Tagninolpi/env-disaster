@@ -3,15 +3,17 @@ tile_types = ["forest","plain","desert","mountain","sea","river"]
 
 class Player:
     def __init__(self,energy,env_bar,tile_price,nb_rings):
-        #coord id conversion
+        # Flat-top neighbors (flat side is horizontal)
         self.HEX_DIRECTIONS = [
-            (1, 0),
-            (1, -1),
-            (0, -1),
-            (-1, 0),
-            (-1, 1),
-            (0, 1)
-            ]
+            (+1, 0),   # east
+            (+1, -1),  # northeast
+            (0, -1),   # northwest
+            (-1, 0),   # west
+            (-1, +1),  # southwest
+            (0, +1)    # southeast
+        ]
+
+
 
         #display
         self.energy = energy
@@ -32,49 +34,28 @@ class Player:
             "river": ["Hydro dam", "Nuclear"]
             }
         self.buildings = {
-            #Fossil
-            "Coal":{"nb":0,"base_cost":100,"env_cost":1},
-            "Offshore oil":{"nb":0,"base_cost":100,"env_cost":1},
-            "Fracking gas":{"nb":0,"base_cost":100,"env_cost":1},
-            "Lithium extraction":{"nb":0,"base_cost":100,"env_cost":1},
-            #Renewable
-            "Hydro dam":{"nb":0,"base_cost":100,"env_cost":1},
-            "Geothermal":{"nb":0,"base_cost":100,"env_cost":1},
-            "Tidal":{"nb":0,"base_cost":100,"env_cost":1},
-            "Wood":{"nb":0,"base_cost":100,"env_cost":1},
-            #Green
-            "Solar":{"nb":0,"base_cost":100,"env_cost":1},
-            "Wind":{"nb":0,"base_cost":100,"env_cost":1},
-            "Nuclear":{"nb":0,"base_cost":100,"env_cost":1},
-            "Gravity":{"nb":0,"base_cost":100,"env_cost":1},
-            #Alternative
-            "Hydrogen":{"nb":0,"base_cost":100,"env_cost":1},
-            "Synthetic fuel":{"nb":0,"base_cost":100,"env_cost":1},
-            "Mirror plant":{"nb":0,"base_cost":100,"env_cost":1},
-            "Salinity gradient":{"nb":0,"base_cost":100,"env_cost":1}
-        }
-        self.building_stats = {
-            #Fossil
-            "Coal":{"E_prod":1,"env_cost":0.1,"upgrade_cost":1000,"max_durability":100},
-            "Offshore oil":{"E_prod":1,"env_cost":0.1,"upgrade_cost":1000,"max_durability":100},
-            "Fracking gas":{"E_prod":1,"env_cost":0.1,"upgrade_cost":1000,"max_durability":100},
-            "Lithium extraction":{"E_prod":1,"env_cost":0.1,"upgrade_cost":1000,"max_durability":100},
-            #Renewable
-            "Hydro dam":{"E_prod":1,"env_cost":0.1,"upgrade_cost":1000,"max_durability":100},
-            "Geothermal":{"E_prod":1,"env_cost":0.1,"upgrade_cost":1000,"max_durability":100},
-            "Tidal":{"E_prod":1,"env_cost":0.1,"upgrade_cost":1000,"max_durability":100},
-            "Wood":{"E_prod":1,"env_cost":0.1,"upgrade_cost":1000,"max_durability":100},
-            #Green
-            "Solar":{"E_prod":1,"env_cost":0.1,"upgrade_cost":1000,"max_durability":100},
-            "Wind":{"E_prod":1,"env_cost":0.1,"upgrade_cost":1000,"max_durability":100},
-            "Nuclear":{"E_prod":1,"env_cost":0.1,"upgrade_cost":1000,"max_durability":100},
-            "Gravity":{"E_prod":1,"env_cost":0.1,"upgrade_cost":1000,"max_durability":100},
-            #Alternative
-            "Hydrogen":{"E_prod":1,"env_cost":0.1,"upgrade_cost":1000,"max_durability":100},
-            "Synthetic fuel":{"E_prod":1,"env_cost":0.1,"upgrade_cost":1000,"max_durability":100},
-            "Mirror plant":{"E_prod":1,"env_cost":0.1,"upgrade_cost":1000,"max_durability":100},
-            "Salinity gradient":{"E_prod":1,"env_cost":0.1,"upgrade_cost":1000,"max_durability":100},
-        }
+# Fossil
+"Coal": {"nb": 0,"E_buy_cost": 100,"env_build_cost": 1,"env_use_cost": 0.1,"E_prod": 1,"durability": 100},
+"Offshore oil": {"nb": 0,"E_buy_cost": 100,"env_build_cost": 1,"env_use_cost": 0.1,"E_prod": 1,"durability": 100},
+"Fracking gas": {"nb": 0,"E_buy_cost": 100,"env_build_cost": 1,"env_use_cost": 0.1,"E_prod": 1,"durability": 100},
+"Lithium extraction": {"nb": 0,"E_buy_cost": 100,"env_build_cost": 1,"env_use_cost": 0.1,"E_prod": 1,"durability": 100},
+# Renewable
+"Hydro dam": {"nb": 0,"E_buy_cost": 100,"env_build_cost": 1,"env_use_cost": 0.1,"E_prod": 1,"durability": 100},
+"Geothermal": {"nb": 0,"E_buy_cost": 100,"env_build_cost": 1,"env_use_cost": 0.1,"E_prod": 1,"durability": 100},
+"Tidal": {"nb": 0,"E_buy_cost": 100,"env_build_cost": 1,"env_use_cost": 0.1,"E_prod": 1,"durability": 100},
+"Wood": {"nb": 0,"E_buy_cost": 100,"env_build_cost": 1,"env_use_cost": 0.1,"E_prod": 1,"durability": 100},
+# Green
+"Solar": {"nb": 0,"E_buy_cost": 100,"env_build_cost": 1,"env_use_cost": 0.1,"E_prod": 1,"durability": 100},
+"Wind": {"nb": 0,"E_buy_cost": 100,"env_build_cost": 1,"env_use_cost": 0.1,"E_prod": 1,"durability": 100},
+"Nuclear": {"nb": 0,"E_buy_cost": 100,"env_build_cost": 1,"env_use_cost": 0.1,"E_prod": 1,"durability": 100},
+"Gravity": {"nb": 0,"E_buy_cost": 100,"env_build_cost": 1,"env_use_cost": 0.1,"E_prod": 1,"durability": 100},
+# Alternative
+"Hydrogen": {"nb": 0,"E_buy_cost": 100,"env_build_cost": 1,"env_use_cost": 0.1,"E_prod": 1,"durability": 100},
+"Synthetic fuel": {"nb": 0,"E_buy_cost": 100,"env_build_cost": 1,"env_use_cost": 0.1,"E_prod": 1,"durability": 100},
+"Mirror plant": {"nb": 0,"E_buy_cost": 100,"env_build_cost": 1,"env_use_cost": 0.1,"E_prod": 1,"durability": 100},
+"Salinity gradient": {"nb": 0,"E_buy_cost": 100,"env_build_cost": 1,"env_use_cost": 0.1,"E_prod": 1,"durability": 100}
+}
+
 
     def init_tiles(self,nb_rings):
         tiles = []
@@ -131,48 +112,59 @@ class Player:
             self.tiles[id].status = "empty"
             self.update_locked_tiles()
     
-    def buy_building(self,id,building):
-        build_price = round(self.buildings[building]["base_cost"] + 10**(self.buildings[building]["nb"]/2))
-        if self.energy > build_price:
-            self.energy -= build_price
-            self.env_bar += round(self.buildings[building]["env_cost"],3)
-            self.buildings[building]["nb"] += 1
-            self.tiles[id].status = Building(building,self.building_stats[building]["max_durability"])
-    
-    def upgrade_building(self, tile_id, building=None):
-        tile = self.get_tile(tile_id)
-        if not tile or not tile.status:
-            return
+    def buy_building(self, tile_id, building):
+        base = self.buildings[building]
 
-        if isinstance(tile.status, Building):
-            # get building name if not provided
-            building = building or tile.status.name
-            upgrade_price = round(
-                self.building_stats[building]["upgrade_cost"] + 10**((tile.status.lv + 1)/2)
+        # base buy cost scales with number already built
+        build_price = round(base["E_buy_cost"] * (1 + base["nb"] / 2))
+
+        if self.energy >= build_price:
+            self.energy -= build_price
+            self.env_bar += round(base["env_build_cost"], 3)
+
+            base["nb"] += 1
+            self.tiles[tile_id].status = Building(
+                building,
+                base["durability"]
             )
 
-            if self.energy >= upgrade_price:
-                # increment level directly on the building object
-                tile.status.lv += 1
-                lv = tile.status.lv  # updated level
+    def upgrade_building(self, tile_id):
+        tile = self.get_tile(tile_id)
+        if not tile or not isinstance(tile.status, Building):
+            return
 
-                self.energy -= upgrade_price
-                self.env_bar += round(self.buildings[building]["env_cost"] + 10**(lv/10), 3)
-                tile.status.durability = self.building_stats[building]["max_durability"] + 10**(lv/2)
+        building = tile.status
+        base = self.buildings[building.name]
+
+        # upgrade cost scales ONLY with level
+        upgrade_price = round(base["E_buy_cost"] * (building.lv + 1) ** 1.5)
+
+        if self.energy >= upgrade_price:
+            self.energy -= upgrade_price
+            building.lv += 1
+
+            # durability scales with level
+            building.durability = round(base["durability"] * (1 + building.lv / 2))
+
+            # environment impact scales with level
+            self.env_bar += round(base["env_use_cost"] * building.lv, 3)
 
 
 
     def money_env_update(self):
         for tile in self.tiles:
             if isinstance(tile.status, Building):
-                building = tile.status
-                stats = self.building_stats[building.name]
-                # Energy production scales with level
-                energy_gain = round(stats["E_prod"] * (1 + building.lv / 2))
+                b = tile.status
+                base = self.buildings[b.name]
+
+                # energy production scales with level
+                energy_gain = round(base["E_prod"] * (1 + b.lv / 2))
                 self.energy += energy_gain
-                # Environmental cost scales with level
-                env_cost = round(stats["env_cost"] * (1 + building.lv / 5),3)
+
+                # environment usage scales with level
+                env_cost = round(base["env_use_cost"] * (1 + b.lv / 5), 3)
                 self.env_bar += env_cost
+
     
     def get_tile(self, tile_id):
         if 0 <= tile_id < len(self.tiles):

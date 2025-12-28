@@ -53,7 +53,6 @@ def get_state(player: Player):
         "nb_bought_tiles": player.nb_bought_tiles,
         "building_pref": player.building_pref,
         "buildings": player.buildings,
-        "building_stats": player.building_stats
     }
 
 
