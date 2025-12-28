@@ -1,4 +1,4 @@
-import { refresh_view, getTileFromClick } from './draw.js';
+import { refresh_view, getTileFromClick, initDrawAssets, resizeCanvas} from './draw.js';
 import * as bottomPanel from './bottom_panel.js';
 
 const app = document.getElementById("app");
@@ -168,10 +168,19 @@ async function loadPage(name) {
 }
 
 async function startGame() {
+  await initDrawAssets();
+
   const data = await callApi("/api/start");
   if (!data) return;
 
   await loadPage("game_view");
+
+  // --- RESIZE CANVAS ---
+  resizeCanvas(); // set correct square size before drawing
+  window.addEventListener("resize", () => {
+    resizeCanvas();
+  });
+
   bindCanvasEvents();
   applyServerState(data);
   bottomPanel.updateBottomPanel(null, gameState);
