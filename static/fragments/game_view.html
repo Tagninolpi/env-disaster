@@ -81,83 +81,57 @@
 
     <!-- Building details menu (BUY) -->
     <div class="module hidden" id="building-details">
-      <h3 id="detail-building-name">Building Name</h3>
+      <div class="grid-columns">
+        <div>
+          <h3 id="detail-building-name">Building Name</h3>
+          <p>Buy cost: <span id="detail-price">0</span> energy</p>
+        </div>
 
-      <p>
-        Buy cost:
-        <span id="detail-price">0</span> energy
-      </p>
+        <div>
+          <p>Energy production: <span id="detail-production">0</span></p>
+          <p>Preferred tiles: <span id="detail-preferred-tile">-</span></p>
+        </div>
 
-      <hr>
+        <div>
+          <p>Environmental build cost: <span id="detail-env-build">0</span></p>
+          <p>Environmental usage cost: <span id="detail-env-usage">0</span></p>
+        </div>
 
-      <p>
-        Energy production :
-        <span id="detail-production">0</span>
-      </p>
-
-      <p>
-        Environmental build cost:
-        <span id="detail-env-build">0</span>
-      </p>
-
-      <p>
-        Environmental usage cost:
-        <span id="detail-env-usage">0</span>
-      </p>
-
-      <p>
-        Durability:
-        <span id="detail-durability">0</span>
-      </p>
-
-      <p>
-        Preferred tiles:
-        <span id="detail-preferred-tile">-</span>
-      </p>
-
-
-      <button onclick="buyBuilding()">Buy Building</button>
-      <button onclick="backToBuildings()">Return</button>
+        <div>
+          <p>Durability: <span id="detail-durability">0</span></p>
+          <button onclick="buyBuilding()">Buy Building</button>
+          <button onclick="backToBuildings()">Return</button>
+        </div>
+      </div>
     </div>
+
+
 
 
     <!-- Tile has a building, show upgrade info -->
     <div class="module hidden" id="module-occupied">
-      <h3>Building</h3>
+      <div class="grid-columns">
+        <div>
+          <p>Name: <span id="building-name">-</span></p>
+          <p>Level: <span id="building-level">0</span></p>
+        </div>
 
-      <p>Name: <span id="building-name">-</span></p>
-      <p>Level: <span id="building-level">0</span></p>
-      <p>
-        Energy Upgrade cost:
-        <strong><span id="upgrade-cost">0</span></strong> energy
-      </p>
-      <p>
-        Environmental Upgrade cost:
-        <strong><span id="upgrade-env-cost">0</span></strong> energy
-      </p>
-      
-      <hr>
+        <div>
+          <p>Energy Upgrade cost: <span id="upgrade-cost">0</span> energy</p>
+          <p>Environmental Upgrade cost: <span id="upgrade-env-cost">0</span> energy</p>
+        </div>
 
-      <p>
-        Energy production:
-        <span id="building-energy">0</span>
-        →
-        <strong><span id="building-energy-next">0</span></strong>
-      </p>
-      <p>
-        Durability: <span id="building-durability">0</span>
-        →
-        <strong><span id="building-durability-next">0</span></strong>
-      </p>
+        <div>
+          <p>Energy production: <span id="building-energy">0</span> → <span id="building-energy-next">0</span></p>
+          <p>Environmental use cost: <span id="building-env">0</span> → <span id="building-env-next">0</span></p>
+        </div>
 
-      <p>
-        Environmental use cost:
-        <span id="building-env">0</span>
-        →
-        <strong><span id="building-env-next">0</span></strong>
-      </p>
+        <div>
+          <p>Durability: <span id="building-durability">0</span> → <span id="building-durability-next">0</span></p>
+          <button onclick="upgradeBuilding()">Upgrade</button>
+        </div>
+      </div>
 
-      <button onclick="upgradeBuilding()">Upgrade</button>
     </div>
 
   </div>

@@ -18,7 +18,7 @@ html, body {
 /* ============================= */
 #game-view {
   display: grid;
-  grid-template-rows: auto 1fr 100px; /* TOP | CANVAS | BOTTOM */
+  grid-template-rows: 5% 70% 25%; /* TOP | CANVAS | BOTTOM */
   height: 100vh;
   width: 100vw;
 }
@@ -31,7 +31,6 @@ html, body {
   justify-content: center;
   align-items: center;
   gap: 40px;
-  padding: 12px 0;
   background: #e6e6e6;
   border-bottom: 2px solid #999;
   font-size: 18px;
@@ -39,21 +38,18 @@ html, body {
 }
 
 /* ============================= */
-/* CANVAS AREA                   */
+/* CANVAS AREA (SQUARE)          */
 /* ============================= */
 #canvas-container {
   display: flex;
   justify-content: center;
   align-items: center;
   background: #bdbdbd;
-  overflow: hidden;
 }
 
 #game-canvas {
-  width: 70vmin;
-  height: 70vmin;
-  max-width: 70vmin;
-  max-height: 70vmin;
+  width: 70vh;   /* square: width = height */
+  height: 70vh;
   border: 2px solid black;
   background-color: #f0f0f0;
 }
@@ -62,18 +58,17 @@ html, body {
 /* BOTTOM PANEL (FULL WIDTH)     */
 /* ============================= */
 #bottom-panel {
-  height: 100px;                /* CONSTANT SIZE */
   width: 100%;
+  height: 100%;
   background: #f2f2f2;
   border-top: 2px solid #999;
-  padding: 12px;
-
-  overflow-y: auto;             /* scroll INSIDE panel */
-  overflow-x: hidden;
-
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px;
+  justify-content: flex-start;
+  align-content: flex-start;
+  overflow: hidden;
 }
 
 /* ============================= */
@@ -84,6 +79,11 @@ html, body {
   border: 1px solid #aaa;
   border-radius: 6px;
   padding: 12px;
+  flex: 1 1 calc(100% - 24px); /* full width by default */
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .module h3 {
@@ -96,11 +96,30 @@ html, body {
 }
 
 /* ============================= */
+/* BUY / UPGRADE GRID LAYOUT     */
+/* ============================= */
+.module .grid-columns {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  width: 100%;
+}
+
+.module .grid-columns div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.module .grid-columns button {
+  width: fit-content;
+}
+
+/* ============================= */
 /* BUTTONS                       */
 /* ============================= */
 button {
   padding: 8px 10px;
-  margin-top: 6px;
   font-size: 14px;
   cursor: pointer;
 }
@@ -114,7 +133,7 @@ button:hover {
 /* ============================= */
 .building-category {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 8px;
   margin-top: 8px;
 }
@@ -129,13 +148,19 @@ button:hover {
 /* ============================= */
 /* RESPONSIVE ADJUSTMENTS        */
 /* ============================= */
+@media (max-width: 1000px) {
+  .module {
+    flex: 1 1 calc(50% - 16px); /* 2 columns on smaller screens */
+  }
+}
+
 @media (max-width: 700px) {
   #game-canvas {
-    width: 85vmin;
-    height: 85vmin;
+    width: 60vw;
+    height: 60vw; /* keep square on small screens */
   }
 
-  #bottom-panel {
-    height: 300px;
+  .module {
+    flex: 1 1 100%; /* single column on very small screens */
   }
 }
