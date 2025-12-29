@@ -33,6 +33,52 @@ function resetEmptyTileUI() {
   hideAllBuildingSubcontainers();
 }
 
+/* =========================================================
+   BACKEND MIRROR – VALUE CALCULATION HELPERS
+   (MUST MATCH PYTHON EXACTLY)
+   ========================================================= */
+
+// ---- tile ----
+function tilePrice(base, nbBought) {
+  return roundx(base * (1 + nbBought), 0);
+}
+
+// ---- buying ----
+function buyBuildPrice(base, nbBuilt) {
+  return roundx(base * (1 + nbBuilt), 0);
+}
+
+function buyBuildEnvCost(base, nbBuilt) {
+  return roundx(base * (1 + nbBuilt), 3);
+}
+
+// ---- upgrade ----
+function upgradePrice(base, lv) {
+  return roundx(base * (1 + lv), 0);
+}
+
+function upgradeEnvPrice(base, lv) {
+  return roundx(base * (1 + lv), 0);
+}
+
+function upgradeDurability(base, lv) {
+  return roundx(base * (1 + lv), 0);
+}
+
+function upgradeEnvCost(base, lv) {
+  return roundx(base * (1 + lv), 3);
+}
+
+// ---- production / usage per tick ----
+function energyProduction(baseProd, lv) {
+  return roundx(baseProd * lv, 0);
+}
+
+function envUsage(baseEnv, lv) {
+  return roundx(baseEnv * lv, 4);
+}
+
+
 /* ---------- MAIN ENTRY ---------- */
 export function updateBottomPanel(tile) {
   if (!currentState || !tile) {
@@ -48,7 +94,11 @@ export function updateBottomPanel(tile) {
   }
 
   if (status === "buyable") {
-    const price = roundx(currentState.tile_price * currentState.nb_bought_tiles,0);
+    const price = tilePrice(
+      currentState.tile_price,
+      currentState.nb_bought_tiles
+      );
+
     const buyBtn = document.querySelector("#module-buyable button");
 
     document.getElementById("buyable-price").textContent = price;
@@ -105,15 +155,15 @@ export function showBuildingDetails(name) {
   showModule("building-details");
 
   const lv = 1; // buying always starts at level 1
-  const price = roundx(stats.E_buy_cost * (1 + (stats.nb || 0)/2),0);
+  const price = buyBuildPrice(stats.E_buy_cost, stats.nb || 0);
   const buyBtn = document.querySelector("#building-details button:first-of-type");
 
   document.getElementById("detail-building-name").textContent = name;
   document.getElementById("detail-price").textContent = price;
-  document.getElementById("detail-production").textContent = roundx(stats.E_prod * lv,0);
-  document.getElementById("detail-env-build").textContent = roundx(stats.env_build_cost,3);
-  document.getElementById("detail-env-usage").textContent = roundx(stats.env_use_cost * lv,4);
-  document.getElementById("detail-durability").textContent = roundx(stats.durability * lv,0);
+  document.getElementById("detail-production").textContent =energyProduction(stats.E_prod, 1);
+  document.getElementById("detail-env-build").textContent =buyBuildEnvCost(stats.env_build_cost, stats.nb || 0);
+  document.getElementById("detail-env-usage").textContent =envUsage(stats.env_use_cost, 1);
+  document.getElementById("detail-durability").textContent =upgradeDurability(stats.durability, 1);
 
   // Preferred tiles
   const preferred = [];
@@ -155,11 +205,14 @@ function updateBuildingInfo(building) {
   document.getElementById("building-level").textContent = building.lv;
   document.getElementById("building-durability").textContent = building.durability;
 
-  document.getElementById("building-energy").textContent = roundx(stats.E_prod * (1 + building.lv / 2),0);
-  document.getElementById("building-env").textContent = roundx(stats.env_use_cost * building.lv,4);
+  document.getElementById("building-energy").textContent =energyProduction(stats.E_prod, building.lv);
+  document.getElementById("building-env").textContent =envUsage(stats.env_use_cost, building.lv);
+  document.getElementById("building-durability").textContent = building.durability;
 
-  document.getElementById("building-energy-next").textContent = roundx(stats.E_prod * (1 + (building.lv + 1)/2),0);
-  document.getElementById("building-env-next").textContent = roundx(stats.env_use_cost * (building.lv + 1),4);
+  document.getElementById("building-energy-next").textContent =energyProduction(stats.E_prod, building.lv + 1);
+  document.getElementById("building-env-next").textContent =envUsage(stats.env_use_cost, building.lv + 1);
+  document.getElementById("building-durability-next").textContent = upgradeDurability(stats.durability, building.lv + 1);
+
 }
 
 function updateUpgradeButton(building) {
@@ -168,7 +221,9 @@ function updateUpgradeButton(building) {
   if (!stats) return;
 
   const upgradeBtn = document.querySelector("#module-occupied button");
-  const upgradeCost = roundx(stats.E_buy_cost * Math.pow(building.lv + 1, 1.5),0);
+  const upgradeCost = upgradePrice(stats.E_buy_cost,building.lv);
+  const envupgradecost = upgradeEnvPrice(stats.env_build_cost,building.lv)
+
 
   if (currentState.energy < upgradeCost) {
     upgradeBtn.disabled = true;
@@ -179,6 +234,7 @@ function updateUpgradeButton(building) {
   }
 
   document.getElementById("upgrade-cost").textContent = upgradeCost;
+  document.getElementById("upgrade-env-cost").textContent = envupgradecost;
 }
 
 /* ---------- EXPOSE FOR INLINE HTML ---------- */

@@ -13,6 +13,13 @@ const gameState = {
   building_pref: {},
   buildings: {},
 };
+// -------------------- GAME END RULES --------------------
+const WIN_ENERGY = 1_000_000;
+const WIN_ENV = -100;
+
+const LOSE_ENERGY = 0;
+const LOSE_ENV = 100;
+
 
 let selectedTileId = null;
 let selectedBuilding = null;
@@ -60,6 +67,7 @@ async function callApi(url, payload = {}, isTick = false) {
       document.getElementById("energy-value").textContent = gameState.energy;
       document.getElementById("environment-value").textContent =
           Math.round(gameState.environment * 10000) / 10000;
+      if (checkGameEnd()) return null;
     }
 
     return data;
@@ -157,6 +165,72 @@ window.upgradeBuilding = async () => {
     refresh_view(gameState.hexes, null);
   }
 };
+
+async function endGame({ win, reason }) {
+  if (gameTickInterval) {
+    clearInterval(gameTickInterval);
+    gameTickInterval = null;
+  }
+
+  await loadPage("game_end");
+
+  document.getElementById("end-result").textContent =
+    win ? "YOU WON" : "YOU LOST";
+
+  document.getElementById("end-result").className =
+    win ? "win" : "lose";
+
+  document.getElementById("end-reason").textContent = reason;
+
+  document.getElementById("end-energy").textContent = gameState.energy;
+  document.getElementById("end-environment").textContent =
+    Math.round(gameState.environment * 10000) / 10000;
+
+  document
+    .getElementById("return-menu-btn")
+    .addEventListener("click", () => {
+      loadPage("main_menu");
+    });
+}
+
+function checkGameEnd() {
+  // ---- WIN CONDITIONS ----
+  if (gameState.energy >= WIN_ENERGY) {
+    endGame({
+      win: true,
+      reason: "You reached 1,000,000 energy production."
+    });
+    return true;
+  }
+
+  if (gameState.environment <= WIN_ENV) {
+    endGame({
+      win: true,
+      reason: "You fully exploited the environment to maximize energy output."
+    });
+    return true;
+  }
+
+  // ---- LOSE CONDITIONS ----
+  if (gameState.energy <= LOSE_ENERGY) {
+    endGame({
+      win: false,
+      reason: "You ran out of energy."
+    });
+    return true;
+  }
+
+  if (gameState.environment >= LOSE_ENV) {
+    endGame({
+      win: false,
+      reason: "The environment collapsed."
+    });
+    return true;
+  }
+
+  return false;
+}
+
 
 // -------------------- PAGE FLOW --------------------
 async function loadPage(name) {

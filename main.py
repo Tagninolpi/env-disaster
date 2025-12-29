@@ -69,9 +69,9 @@ async def start_game(request: Request):
         return JSONResponse({"error": "player_id missing"}, status_code=400)
 
     players[player_id] = Player(
-        energy=1000,
+        energy=10000,
         env_bar=0,
-        tile_price=100,
+        tile_price=1000,
         nb_rings=4
     )
 
