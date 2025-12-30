@@ -115,28 +115,25 @@ html, body {
   }
 
   #top-bar {
-    display: flex;              /* IMPORTANT */
+    display: flex;
     justify-content: space-around;
-    align-items: flex-start;
+    align-items: center;
     font-size: 5vw;
     padding: 2vw 0;
   }
 
-  .stat {
-    display: flex;
-    flex-direction: column;     /* force 2 lines */
+  #top-bar span {
+    display: inline-flex;
     align-items: center;
-    white-space: nowrap;        /* prevent wrapping */
+    gap: 1.5vw;
+    white-space: nowrap;
   }
 
-  .stat-main {
-    font-weight: bold;
+  #top-bar br {
+    display: none; /* 🔑 remove line break ONLY on mobile */
   }
 
-  .stat-delta {
-    font-size: 0.8em;
-    opacity: 0.8;
-  }
+
 
 
   #bottom-panel {
