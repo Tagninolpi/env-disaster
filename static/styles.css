@@ -115,10 +115,29 @@ html, body {
   }
 
   #top-bar {
-    height: auto;
+    display: flex;              /* IMPORTANT */
+    justify-content: space-around;
+    align-items: flex-start;
     font-size: 5vw;
-    gap: 4vw;
+    padding: 2vw 0;
   }
+
+  .stat {
+    display: flex;
+    flex-direction: column;     /* force 2 lines */
+    align-items: center;
+    white-space: nowrap;        /* prevent wrapping */
+  }
+
+  .stat-main {
+    font-weight: bold;
+  }
+
+  .stat-delta {
+    font-size: 0.8em;
+    opacity: 0.8;
+  }
+
 
   #bottom-panel {
     padding: 2vw;
