@@ -215,6 +215,8 @@ function updateBuildingInfo(building) {
 
 }
 
+
+
 function updateUpgradeButton(building) {
   if (!currentState || !building) return;
   const stats = currentState.buildings[building.name];
@@ -236,6 +238,55 @@ function updateUpgradeButton(building) {
   document.getElementById("upgrade-cost").textContent = upgradeCost;
   document.getElementById("upgrade-env-cost").textContent = envupgradecost;
 }
+
+export function refreshBuyButtons(tile) {
+  if (!currentState || !tile) return;
+  const status = tile.status;
+
+  // --- Buy Tile button ---
+  if (status === "buyable") {
+    const price = tilePrice(currentState.tile_price, currentState.nb_bought_tiles);
+    const buyBtn = document.querySelector("#module-buyable button");
+    if (buyBtn) {
+      buyBtn.disabled = currentState.energy < price;
+      buyBtn.textContent = currentState.energy < price ? "Not enough energy" : "Buy Tile";
+      document.getElementById("buyable-price").textContent = price;
+    }
+  }
+
+  // --- Upgrade button ---
+  if (typeof status === "object") {
+    const stats = currentState.buildings[status.name];
+    if (!stats) return;
+    const upgradeBtn = document.querySelector("#module-occupied button");
+    const upgradeCost = upgradePrice(stats.E_buy_cost, status.lv);
+    if (upgradeBtn) {
+      upgradeBtn.disabled = currentState.energy < upgradeCost;
+      upgradeBtn.textContent = currentState.energy < upgradeCost ? "Not enough energy" : "Upgrade";
+      document.getElementById("upgrade-cost").textContent = upgradeCost;
+      document.getElementById("upgrade-env-cost").textContent = upgradeEnvPrice(stats.env_build_cost, status.lv);
+    }
+  }
+
+  // --- Buy Building button ---
+  if (status === "empty") {
+    const buyDetailsModule = document.getElementById("building-details");
+    if (buyDetailsModule && !buyDetailsModule.classList.contains("hidden")) {
+      const buildingName = document.getElementById("detail-building-name").textContent;
+      const stats = currentState.buildings[buildingName];
+      if (stats) {
+        const buyBtn = document.querySelector("#building-details button:first-of-type");
+        const price = buyBuildPrice(stats.E_buy_cost, stats.nb || 0);
+        if (buyBtn) {
+          buyBtn.disabled = currentState.energy < price;
+          buyBtn.textContent = currentState.energy < price ? "Not enough energy" : "Buy Building";
+        }
+      }
+    }
+}
+}
+
+
 
 /* ---------- EXPOSE FOR INLINE HTML ---------- */
 window.selectCategory = selectCategory;

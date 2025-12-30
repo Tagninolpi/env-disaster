@@ -45,6 +45,10 @@ function applyServerState(data) {
   document.getElementById("energy-value").textContent = gameState.energy;
   document.getElementById("environment-value").textContent =
     Math.round(gameState.environment * 10000) / 10000;
+  const { energyDelta, envDelta } = calculateTickDelta();
+  document.getElementById("energy-delta").textContent = energyDelta;
+  document.getElementById("environment-delta").textContent = Math.round(envDelta * 10000) / 10000;
+
 }
 
 // -------------------- SERVER CALL --------------------
@@ -80,11 +84,34 @@ async function callApi(url, payload = {}, isTick = false) {
 // -------------------- GAME TICK --------------------
 function startGameTick() {
   if (gameTickInterval) return;
-  gameTickInterval = setInterval(() => {
+  gameTickInterval = setInterval(async () => {
     if (!gameActive) return;
-    callApi("/api/game_tick", {}, true);
+
+    const data = await callApi("/api/game_tick", {}, true);
+    if (!data) return;
+
+    // update energy/env values
+    if (data.energy !== undefined) gameState.energy = data.energy;
+    if (data.env_bar !== undefined) gameState.environment = data.env_bar;
+
+    document.getElementById("energy-value").textContent = gameState.energy;
+    document.getElementById("environment-value").textContent =
+      Math.round(gameState.environment * 10000) / 10000;
+    const { energyDelta, envDelta } = calculateTickDelta();
+    document.getElementById("energy-delta").textContent = energyDelta;
+    document.getElementById("environment-delta").textContent = Math.round(envDelta * 10000) / 10000;
+
+
+    // --- REFRESH BUTTON STATES ---
+    if (selectedTileId) {
+      const tile = gameState.hexes.find(t => t.id === selectedTileId);
+      if (tile) bottomPanel.refreshBuyButtons(tile);
+    }
+
+    checkGameEnd();
   }, 1000);
 }
+
 
 function stopGameTick() {
   if (gameTickInterval) {
@@ -227,6 +254,24 @@ window.addEventListener("beforeunload", () => {
   gameActive = false;
   navigator.sendBeacon("/api/disconnect", JSON.stringify({ player_id: playerId }));
 });
+
+function calculateTickDelta() {
+  let energyDelta = 0;
+  let envDelta = 0;
+
+  gameState.hexes.forEach(tile => {
+    if (tile.status && typeof tile.status === "object") {
+      const building = tile.status;
+      const stats = gameState.buildings[building.name];
+      if (!stats) return;
+
+      energyDelta += stats.E_prod * building.lv;
+      envDelta += stats.env_use_cost * building.lv;
+    }
+  });
+
+  return { energyDelta, envDelta };
+}
 
 // -------------------- INIT --------------------
 loadPage("main_menu");
