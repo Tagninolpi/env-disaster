@@ -9,133 +9,201 @@
 
 html, body {
   height: 100%;
+  width: 100%;
   font-family: Arial, Helvetica, sans-serif;
   background: #cfcfcf;
+  font-size: 2vw;
+}
+
+/* ============================= */
+/* GAME VIEW LAYOUT              */
+/* ============================= */
+#game-view {
+  display: grid;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* ----------------------------- */
+/* PC / LANDSCAPE LAYOUT         */
+@media (min-width: 1000px) {
+  #game-view {
+    grid-template-columns: auto 1fr; /* left canvas | right side */
+    grid-template-rows: 100%;
+    overflow: hidden;
+  }
+
+  /* Canvas left, full height */
+  #canvas-container {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    border: 2px solid black;
+    background: #bdbdbd;
+  }
+
+  #game-canvas {
+    height: 100%;
+    width: 100%;
+    max-width: 100vh; /* keep square */
+  }
+
+  /* Right side container: split top & bottom */
+  #top-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.6em;
+    gap: 2vw;
+    height: 15%; /* top-bar height */
+    margin-bottom: 1vw;
+  }
+
+  #bottom-panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1vw;
+    font-size: 1.2em;
+    height: 85%; /* bottom-panel takes remaining space */
+    overflow: hidden;
+  }
+}
+
+/* ----------------------------- */
+/* MOBILE / NARROW SCREEN        */
+@media (max-width: 999px) {
+  #game-view {
+    display: grid;
+    grid-template-rows: auto 1fr auto; /* top / canvas / bottom */
+  }
+
+  #canvas-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #bdbdbd;
+    width: 100%;/* ============================= */
+/* GLOBAL RESET                  */
+/* ============================= */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #cfcfcf;
+  overflow: hidden;
 }
 
 /* ============================= */
 /* MAIN GAME LAYOUT              */
 /* ============================= */
 #game-view {
-  display: grid;
-  grid-template-rows: 5% 70% 25%; /* TOP | CANVAS | BOTTOM */
+  display: flex;
   height: 100vh;
   width: 100vw;
+  font-size: 1.2vw; /* scales with screen width on PC */
 }
 
 /* ============================= */
-/* TOP BAR (CENTERED STATS)      */
+/* CANVAS CONTAINER              */
 /* ============================= */
+#canvas-container {
+  background: #bdbdbd;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1 1 50%;
+  height: 100%;
+}
+
+#game-canvas {
+  border: 1px solid black;
+  background-color: #f0f0f0;
+  max-height: 100%;
+  max-width: 100%;
+  aspect-ratio: 1/1; /* square */
+}
+
+/* ============================= */
+/* RIGHT SIDE (TOP + BOTTOM)     */
+/* ============================= */
+#right-side {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 50%;
+  height: 100%;
+}
+
+/* --- TOP BAR --- */
 #top-bar {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 40px;
-  background: #e6e6e6;
-  border-bottom: 2px solid #999;
-  font-size: 18px;
+  gap: 2vw;
+  height: 15%;
+  font-size: 1.5em;
   font-weight: bold;
 }
 
-/* ============================= */
-/* CANVAS AREA (SQUARE)          */
-/* ============================= */
-#canvas-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #bdbdbd;
-}
-
-#game-canvas {
-  width: 70vh;   /* square: width = height */
-  height: 70vh;
-  border: 2px solid black;
-  background-color: #f0f0f0;
-}
-
-/* ============================= */
-/* BOTTOM PANEL (FULL WIDTH)     */
-/* ============================= */
+/* --- BOTTOM PANEL --- */
 #bottom-panel {
-  width: 100%;
-  height: 100%;
+  flex: 1;
   background: #f2f2f2;
-  border-top: 2px solid #999;
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  padding: 12px;
-  justify-content: flex-start;
-  align-content: flex-start;
+  gap: 0.8vw;
+  padding: 0.8vw;
   overflow: hidden;
 }
 
-/* ============================= */
-/* MODULES                       */
-/* ============================= */
+/* --- MODULES --- */
 .module {
   background: white;
-  border: 1px solid #aaa;
-  border-radius: 6px;
-  padding: 12px;
-  flex: 1 1 calc(100% - 24px); /* full width by default */
-  min-width: 220px;
+  padding: 0.8vw;
+  flex: 1 1 calc(100% - 1.6vw);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0.8vw;
+  font-size: 1em;
 }
 
 .module h3 {
-  margin-bottom: 8px;
+  margin-bottom: 0.5em;
+  font-size: 1.1em;
 }
 
 .module p {
-  margin-bottom: 6px;
-  font-size: 14px;
+  margin-bottom: 0.3em;
+  font-size: 1em;
 }
 
-/* ============================= */
-/* BUY / UPGRADE GRID LAYOUT     */
-/* ============================= */
-.module .grid-columns {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  width: 100%;
-}
-
-.module .grid-columns div {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.module .grid-columns button {
-  width: fit-content;
-}
-
-/* ============================= */
-/* BUTTONS                       */
-/* ============================= */
+/* --- BUTTONS --- */
 button {
-  padding: 8px 10px;
-  font-size: 14px;
+  padding: 0.5em 0.8em;
+  font-size: 1em;
   cursor: pointer;
 }
 
-button:hover {
-  background: #ddd;
-}
-
 /* ============================= */
-/* BUILDING CATEGORY LAYOUT      */
+/* BUILDING CATEGORY BUTTONS     */
 /* ============================= */
 .building-category {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 8px;
-  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+}
+
+.building-category button {
+  flex: 1 1 30%;
+  font-size: 1em;
+  padding: 0.5em;
 }
 
 /* ============================= */
@@ -146,21 +214,132 @@ button:hover {
 }
 
 /* ============================= */
-/* RESPONSIVE ADJUSTMENTS        */
+/* RESPONSIVE MOBILE / SMALL     */
 /* ============================= */
 @media (max-width: 1000px) {
+  #game-view {
+    flex-direction: column;
+    font-size: 4vw;
+  }
+
+  #canvas-container {
+    width: 100%;
+    flex: 0 0 auto;
+    height: auto;
+    padding: 1vw;
+  }
+
+  #game-canvas {
+    width: 90vw;
+    height: 90vw;
+  }
+
+  #right-side {
+    width: 100%;
+    flex-direction: column;
+    height: auto;
+  }
+
+  #top-bar {
+    height: auto;
+    font-size: 5vw;
+  }
+
+  #bottom-panel {
+    padding: 2vw;
+    gap: 2vw;
+  }
+
   .module {
-    flex: 1 1 calc(50% - 16px); /* 2 columns on smaller screens */
+    font-size: 1em;
+    padding: 1.5vw;
+    flex: 1 1 100%;
+  }
+
+  .building-category button {
+    flex: 1 1 45%;
+    font-size: 1em;
+    padding: 1vw;
   }
 }
 
-@media (max-width: 700px) {
-  #game-canvas {
-    width: 60vw;
-    height: 60vw; /* keep square on small screens */
   }
 
-  .module {
-    flex: 1 1 100%; /* single column on very small screens */
+  #game-canvas {
+    width: 80vw;
+    height: 80vw; /* keep square */
   }
+
+  #top-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 4vw;
+    gap: 4vw;
+  }
+
+  #bottom-panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2vw;
+    padding: 2vw;
+    font-size: 3.5vw;
+  }
+}
+
+/* ============================= */
+/* MODULES                       */
+/* ============================= */
+.module {
+  background: #fff;
+  padding: 0.5vw;
+  flex: 1 1 calc(100% - 1vw);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5vw;
+  font-size: 1em;
+}
+
+.module h3 {
+  margin-bottom: 0.5vw;
+}
+
+.module p {
+  margin-bottom: 0.3vw;
+}
+
+/* ============================= */
+/* BUILDING CATEGORY BUTTONS     */
+/* ============================= */
+.building-category {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 0.5vw;
+  margin-top: 0.5vw;
+}
+
+.building-category button {
+  font-size: 0.5em;
+  padding: 0.4em 0.7em;
+}
+
+/* ============================= */
+/* BUTTONS                       */
+/* ============================= */
+button {
+  padding: 0.8em 1em;
+  font-size: 1em;
+  cursor: pointer;
+  background: #f7f7f7;
+}
+
+button:hover {
+  background: #ddd;
+}
+
+/* ============================= */
+/* HIDDEN ELEMENTS               */
+/* ============================= */
+.hidden {
+  display: none;
 }

@@ -1,139 +1,140 @@
 <div id="game-view">
 
-  <!-- ===== TOP BAR ===== -->
-  <div id="top-bar">
-    <span id="energy">
-      Energy: <span id="energy-value">0</span>
-    </span>
-
-    <span id="environment">
-      Environment: <span id="environment-value">0</span>
-    </span>
-  </div>
-
-  <!-- ===== GAME CANVAS ===== -->
+  <!-- ===== LEFT SIDE: GAME CANVAS ===== -->
   <div id="canvas-container">
-    <canvas id="game-canvas" width="800" height="500"></canvas>
+    <canvas id="game-canvas" width="800" height="800"></canvas>
   </div>
 
-  <!-- ===== BOTTOM PANEL / MODULES ===== -->
-  <div id="bottom-panel">
+  <!-- ===== RIGHT SIDE: TOP BAR + BOTTOM PANEL ===== -->
+  <div id="right-side">
 
-    <!-- Default message -->
-    <div class="module" id="module-default">
-      <p>Select a tile to see actions.</p>
+    <!-- ===== TOP BAR ===== -->
+    <div id="top-bar">
+      <span id="energy">
+        Energy: <span id="energy-value">0</span>
+      </span>
+
+      <span id="environment">
+        Environment: <span id="environment-value">0</span>
+      </span>
     </div>
 
-    <!-- Tile is not buyable -->
-    <div class="module hidden" id="module-not-buyable">
-      <p>This tile cannot be bought.</p>
-    </div>
+    <!-- ===== BOTTOM PANEL / MODULES ===== -->
+    <div id="bottom-panel">
 
-    <!-- Tile is buyable -->
-    <div class="module hidden" id="module-buyable">
-      <p>Tile price: <span id="buyable-price">100</span> energy</p>
-      <button onclick="buyTile()">Buy Tile</button>
-    </div>
-
-    <!-- Tile is empty, show building buy menu -->
-    <div class="module hidden" id="module-empty">
-      <p>Select a building category:</p>
-      <div id="category-buttons">
-        <button onclick="selectCategory('Fossil')">Fossil</button>
-        <button onclick="selectCategory('Renewable')">Renewable</button>
-        <button onclick="selectCategory('Green')">Green</button>
-        <button onclick="selectCategory('Alternative')">Alternative</button>
+      <!-- Default message -->
+      <div class="module" id="module-default">
+        <p>Select a tile to see actions.</p>
       </div>
 
-      <!-- Subcontainers for each category -->
-      <div id="buildings-Fossil" class="building-category hidden">
-        <button onclick="showBuildingDetails('Coal')">Coal</button>
-        <button onclick="showBuildingDetails('Offshore oil')">Offshore oil</button>
-        <button onclick="showBuildingDetails('Fracking gas')">Fracking gas</button>
-        <button onclick="showBuildingDetails('Lithium extraction')">Lithium extraction</button>
-        <button onclick="backToCategories()">Return</button>
+      <!-- Tile is not buyable -->
+      <div class="module hidden" id="module-not-buyable">
+        <p>This tile cannot be bought.</p>
       </div>
 
-      <div id="buildings-Renewable" class="building-category hidden">
-        <button onclick="showBuildingDetails('Hydro dam')">Hydro dam</button>
-        <button onclick="showBuildingDetails('Geothermal')">Geothermal</button>
-        <button onclick="showBuildingDetails('Tidal')">Tidal</button>
-        <button onclick="showBuildingDetails('Wood')">Wood</button>
-        <button onclick="backToCategories()">Return</button>
+      <!-- Tile is buyable -->
+      <div class="module hidden" id="module-buyable">
+        <p>Tile price: <span id="buyable-price">100</span> energy</p>
+        <button onclick="buyTile()">Buy Tile</button>
       </div>
 
-      <div id="buildings-Green" class="building-category hidden">
-        <button onclick="showBuildingDetails('Solar')">Solar</button>
-        <button onclick="showBuildingDetails('Wind')">Wind</button>
-        <button onclick="showBuildingDetails('Nuclear')">Nuclear</button>
-        <button onclick="showBuildingDetails('Gravity')">Gravity</button>
-        <button onclick="backToCategories()">Return</button>
-      </div>
-
-      <div id="buildings-Alternative" class="building-category hidden">
-        <button onclick="showBuildingDetails('Hydrogen')">Hydrogen</button>
-        <button onclick="showBuildingDetails('Synthetic fuel')">Synthetic fuel</button>
-        <button onclick="showBuildingDetails('Mirror plant')">Mirror plant</button>
-        <button onclick="showBuildingDetails('Salinity gradient')">Salinity gradient</button>
-        <button onclick="backToCategories()">Return</button>
-      </div>
-    </div>
-
-    <!-- Building details menu (BUY) -->
-    <div class="module hidden" id="building-details">
-      <div class="grid-columns">
-        <div>
-          <h3 id="detail-building-name">Building Name</h3>
-          <p>Buy cost: <span id="detail-price">0</span> energy</p>
+      <!-- Tile is empty, show building buy menu -->
+      <div class="module hidden" id="module-empty">
+        <p>Select a building category:</p>
+        <div id="category-buttons">
+          <button onclick="selectCategory('Fossil')">Fossil</button>
+          <button onclick="selectCategory('Renewable')">Renewable</button>
+          <button onclick="selectCategory('Green')">Green</button>
+          <button onclick="selectCategory('Alternative')">Alternative</button>
         </div>
 
-        <div>
-          <p>Energy production: <span id="detail-production">0</span></p>
-          <p>Preferred tiles: <span id="detail-preferred-tile">-</span></p>
+        <!-- Subcontainers for each category -->
+        <div id="buildings-Fossil" class="building-category hidden">
+          <button onclick="showBuildingDetails('Coal')">Coal</button>
+          <button onclick="showBuildingDetails('Offshore oil')">Offshore oil</button>
+          <button onclick="showBuildingDetails('Fracking gas')">Fracking gas</button>
+          <button onclick="showBuildingDetails('Lithium extraction')">Lithium extraction</button>
+          <button onclick="backToCategories()">Return</button>
         </div>
 
-        <div>
-          <p>Environmental build cost: <span id="detail-env-build">0</span></p>
-          <p>Environmental usage cost: <span id="detail-env-usage">0</span></p>
+        <div id="buildings-Renewable" class="building-category hidden">
+          <button onclick="showBuildingDetails('Hydro dam')">Hydro dam</button>
+          <button onclick="showBuildingDetails('Geothermal')">Geothermal</button>
+          <button onclick="showBuildingDetails('Tidal')">Tidal</button>
+          <button onclick="showBuildingDetails('Wood')">Wood</button>
+          <button onclick="backToCategories()">Return</button>
         </div>
 
-        <div>
-          <p>Durability: <span id="detail-durability">0</span></p>
-          <button onclick="buyBuilding()">Buy Building</button>
-          <button onclick="backToBuildings()">Return</button>
-        </div>
-      </div>
-    </div>
-
-
-
-
-    <!-- Tile has a building, show upgrade info -->
-    <div class="module hidden" id="module-occupied">
-      <div class="grid-columns">
-        <div>
-          <p>Name: <span id="building-name">-</span></p>
-          <p>Level: <span id="building-level">0</span></p>
+        <div id="buildings-Green" class="building-category hidden">
+          <button onclick="showBuildingDetails('Solar')">Solar</button>
+          <button onclick="showBuildingDetails('Wind')">Wind</button>
+          <button onclick="showBuildingDetails('Nuclear')">Nuclear</button>
+          <button onclick="showBuildingDetails('Gravity')">Gravity</button>
+          <button onclick="backToCategories()">Return</button>
         </div>
 
-        <div>
-          <p>Energy Upgrade cost: <span id="upgrade-cost">0</span> energy</p>
-          <p>Environmental Upgrade cost: <span id="upgrade-env-cost">0</span> energy</p>
-        </div>
-
-        <div>
-          <p>Energy production: <span id="building-energy">0</span> → <span id="building-energy-next">0</span></p>
-          <p>Environmental use cost: <span id="building-env">0</span> → <span id="building-env-next">0</span></p>
-        </div>
-
-        <div>
-          <p>Durability: <span id="building-durability">0</span> → <span id="building-durability-next">0</span></p>
-          <button onclick="upgradeBuilding()">Upgrade</button>
+        <div id="buildings-Alternative" class="building-category hidden">
+          <button onclick="showBuildingDetails('Hydrogen')">Hydrogen</button>
+          <button onclick="showBuildingDetails('Synthetic fuel')">Synthetic fuel</button>
+          <button onclick="showBuildingDetails('Mirror plant')">Mirror plant</button>
+          <button onclick="showBuildingDetails('Salinity gradient')">Salinity gradient</button>
+          <button onclick="backToCategories()">Return</button>
         </div>
       </div>
 
-    </div>
+      <!-- Building details menu (BUY) -->
+      <div class="module hidden" id="building-details">
+        <div class="grid-columns">
+          <div>
+            <h3 id="detail-building-name">Building Name</h3>
+            <p>Buy cost: <span id="detail-price">0</span> energy</p>
+          </div>
 
-  </div>
+          <div>
+            <p>Energy production: <span id="detail-production">0</span></p>
+            <p>Preferred tiles: <span id="detail-preferred-tile">-</span></p>
+          </div>
 
-</div>
+          <div>
+            <p>Environmental build cost: <span id="detail-env-build">0</span></p>
+            <p>Environmental usage cost: <span id="detail-env-usage">0</span></p>
+          </div>
+
+          <div>
+            <p>Durability: <span id="detail-durability">0</span></p>
+            <button onclick="buyBuilding()">Buy Building</button>
+            <button onclick="backToBuildings()">Return</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tile has a building, show upgrade info -->
+      <div class="module hidden" id="module-occupied">
+        <div class="grid-columns">
+          <div>
+            <p>Name: <span id="building-name">-</span></p>
+            <p>Level: <span id="building-level">0</span></p>
+          </div>
+
+          <div>
+            <p>Energy Upgrade cost: <span id="upgrade-cost">0</span> energy</p>
+            <p>Environmental Upgrade cost: <span id="upgrade-env-cost">0</span> </p>
+          </div>
+
+          <div>
+            <p>Energy production: <span id="building-energy">0</span> → <span id="building-energy-next">0</span></p>
+            <p>Environmental use cost: <span id="building-env">0</span> → <span id="building-env-next">0</span></p>
+          </div>
+
+          <div>
+            <p>Durability: <span id="building-durability">0</span> → <span id="building-durability-next">0</span></p>
+            <button onclick="upgradeBuilding()">Upgrade</button>
+          </div>
+        </div>
+      </div>
+
+    </div> <!-- end bottom-panel -->
+
+  </div> <!-- end right-side -->
+
+</div> <!-- end game-view -->

@@ -42,7 +42,7 @@ class Player:
 # Renewable
 "Hydro dam": {"nb": 0,"E_buy_cost": 10000,"env_build_cost": 8,"env_use_cost": 0.04,"E_prod": 100,"durability": 100},
 "Geothermal": {"nb": 0,"E_buy_cost": 6500,"env_build_cost": 3,"env_use_cost": 0.01,"E_prod": 35,"durability": 80},
-"Tidal": {"nb": 0,"E_buy_cost": 7500,"env_build_cost": 4,"env_use_cost": -0.4,"E_prod": 8,"durability": 70},
+"Tidal": {"nb": 0,"E_buy_cost": 7500,"env_build_cost": 4,"env_use_cost": -0.04,"E_prod": 8,"durability": 70},
 "Wood": {"nb": 0,"E_buy_cost": 3500,"env_build_cost": 5.5,"env_use_cost": -0.01,"E_prod": 5,"durability": 40},
 # Green
 "Solar": {"nb": 0,"E_buy_cost": 2000,"env_build_cost": 1.2,"env_use_cost": -0.045,"E_prod": 7,"durability": 26},
