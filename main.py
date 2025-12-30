@@ -105,6 +105,9 @@ async def start_cleanup_task():
 def index():
     return FileResponse(BASE_DIR / "index.html")
 
+@app.get("/ping")
+def ping():
+    return {"status": "ok", "time": time.time()}
 
 @app.get("/favicon.ico")
 def favicon():
