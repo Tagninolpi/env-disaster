@@ -1,4 +1,4 @@
-import { refresh_view, getTileFromClick, initDrawAssets, resizeCanvas} from './draw.js';
+import { refresh_view, getTileFromClick, initDrawAssets, resizeCanvas } from './draw.js';
 import * as bottomPanel from './bottom_panel.js';
 
 const app = document.getElementById("app");
@@ -13,14 +13,14 @@ const gameState = {
   building_pref: {},
   buildings: {},
 };
+
 // -------------------- GAME END RULES --------------------
 const WIN_ENERGY = 1_000_000;
 const WIN_ENV = -100;
-
 const LOSE_ENERGY = 0;
 const LOSE_ENV = 100;
 
-
+let gameActive = false;
 let selectedTileId = null;
 let selectedBuilding = null;
 let gameTickInterval = null;
@@ -39,13 +39,12 @@ function applyServerState(data) {
   if (data.buildings) gameState.buildings = data.buildings;
 
   selectedBuilding = null;
-
   bottomPanel.setBottomPanelState(gameState);
   refresh_view(gameState.hexes, selectedTileId);
 
   document.getElementById("energy-value").textContent = gameState.energy;
   document.getElementById("environment-value").textContent =
-      Math.round(gameState.environment * 10000) / 10000;
+    Math.round(gameState.environment * 10000) / 10000;
 }
 
 // -------------------- SERVER CALL --------------------
@@ -61,12 +60,14 @@ async function callApi(url, payload = {}, isTick = false) {
 
     const data = await res.json();
 
-    if (isTick) {
+    if (isTick && gameActive) {
       if (data.energy !== undefined) gameState.energy = data.energy;
       if (data.env_bar !== undefined) gameState.environment = data.env_bar;
+
       document.getElementById("energy-value").textContent = gameState.energy;
       document.getElementById("environment-value").textContent =
-          Math.round(gameState.environment * 10000) / 10000;
+        Math.round(gameState.environment * 10000) / 10000;
+
       if (checkGameEnd()) return null;
     }
 
@@ -78,11 +79,17 @@ async function callApi(url, payload = {}, isTick = false) {
 
 // -------------------- GAME TICK --------------------
 function startGameTick() {
-  if (!gameTickInterval) {
-    gameTickInterval = setInterval(
-      () => callApi("/api/game_tick", {}, true),
-      1000
-    );
+  if (gameTickInterval) return;
+  gameTickInterval = setInterval(() => {
+    if (!gameActive) return;
+    callApi("/api/game_tick", {}, true);
+  }, 1000);
+}
+
+function stopGameTick() {
+  if (gameTickInterval) {
+    clearInterval(gameTickInterval);
+    gameTickInterval = null;
   }
 }
 
@@ -135,17 +142,8 @@ window.buyBuilding = async () => {
   bottomPanel.updateBottomPanel(null);
   refresh_view(gameState.hexes, null);
 
-  const data = await callApi("/api/buy_building", {
-    tile_id: tileId,
-    building
-  });
-
-  if (data) {
-    applyServerState(data);
-
-    bottomPanel.updateBottomPanel(null);
-    refresh_view(gameState.hexes, null);
-  }
+  const data = await callApi("/api/buy_building", { tile_id: tileId, building });
+  if (data) applyServerState(data);
 };
 
 window.upgradeBuilding = async () => {
@@ -158,28 +156,18 @@ window.upgradeBuilding = async () => {
   refresh_view(gameState.hexes, null);
 
   const data = await callApi("/api/upgrade_building", { tile_id: tileId });
-
-  if (data) {
-    applyServerState(data);
-    bottomPanel.updateBottomPanel(null);
-    refresh_view(gameState.hexes, null);
-  }
+  if (data) applyServerState(data);
 };
 
+// -------------------- GAME END --------------------
 async function endGame({ win, reason }) {
-  if (gameTickInterval) {
-    clearInterval(gameTickInterval);
-    gameTickInterval = null;
-  }
+  stopGameTick();
+  gameActive = false;
 
   await loadPage("game_end");
 
-  document.getElementById("end-result").textContent =
-    win ? "YOU WON" : "YOU LOST";
-
-  document.getElementById("end-result").className =
-    win ? "win" : "lose";
-
+  document.getElementById("end-result").textContent = win ? "YOU WON" : "YOU LOST";
+  document.getElementById("end-result").className = win ? "win" : "lose";
   document.getElementById("end-reason").textContent = reason;
 
   document.getElementById("end-energy").textContent = gameState.energy;
@@ -188,60 +176,29 @@ async function endGame({ win, reason }) {
 
   document
     .getElementById("return-menu-btn")
-    .addEventListener("click", () => {
-      loadPage("main_menu");
-    });
+    .addEventListener("click", () => loadPage("main_menu"));
 }
 
 function checkGameEnd() {
-  // ---- WIN CONDITIONS ----
-  if (gameState.energy >= WIN_ENERGY) {
-    endGame({
-      win: true,
-      reason: "You reached 1,000,000 energy production."
-    });
-    return true;
-  }
-
-  if (gameState.environment <= WIN_ENV) {
-    endGame({
-      win: true,
-      reason: "You fully exploited the environment to maximize energy output."
-    });
-    return true;
-  }
-
-  // ---- LOSE CONDITIONS ----
-  if (gameState.energy <= LOSE_ENERGY) {
-    endGame({
-      win: false,
-      reason: "You ran out of energy."
-    });
-    return true;
-  }
-
-  if (gameState.environment >= LOSE_ENV) {
-    endGame({
-      win: false,
-      reason: "The environment collapsed."
-    });
-    return true;
-  }
-
+  if (gameState.energy >= WIN_ENERGY) return endGame({ win: true, reason: "You reached 1,000,000 energy production." }), true;
+  if (gameState.environment <= WIN_ENV) return endGame({ win: true, reason: "You fully exploited the environment." }), true;
+  if (gameState.energy <= LOSE_ENERGY) return endGame({ win: false, reason: "You ran out of energy." }), true;
+  if (gameState.environment >= LOSE_ENV) return endGame({ win: false, reason: "The environment collapsed." }), true;
   return false;
 }
-
 
 // -------------------- PAGE FLOW --------------------
 async function loadPage(name) {
   const res = await fetch(`/static/fragments/${name}.html`);
   app.innerHTML = res.ok ? await res.text() : "<p>Page not found</p>";
+
   if (name === "main_menu") {
     document.getElementById("start-game-btn")?.addEventListener("click", startGame);
   }
 }
 
 async function startGame() {
+  gameActive = true;
   await initDrawAssets();
 
   const data = await callApi("/api/start");
@@ -249,11 +206,8 @@ async function startGame() {
 
   await loadPage("game_view");
 
-  // --- RESIZE CANVAS ---
-  resizeCanvas(); // set correct square size before drawing
-  window.addEventListener("resize", () => {
-    resizeCanvas();
-  });
+  resizeCanvas();
+  window.addEventListener("resize", resizeCanvas);
 
   bindCanvasEvents();
   applyServerState(data);
@@ -261,11 +215,18 @@ async function startGame() {
   startGameTick();
 }
 
-// -------------------- BUILDING SELECTION BRIDGE --------------------
+// -------------------- BUILDING SELECTION --------------------
 window.showBuildingDetails = name => {
   selectedBuilding = name;
   bottomPanel.showBuildingDetails(name);
 };
+
+// -------------------- HANDLE PAGE RELOAD / EXIT --------------------
+window.addEventListener("beforeunload", () => {
+  stopGameTick();
+  gameActive = false;
+  navigator.sendBeacon("/api/disconnect", JSON.stringify({ player_id: playerId }));
+});
 
 // -------------------- INIT --------------------
 loadPage("main_menu");

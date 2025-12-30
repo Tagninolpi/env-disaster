@@ -1,29 +1,46 @@
+import time
+import asyncio
+from pathlib import Path
+
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from pathlib import Path
+
 from game import Player, Building
+
+# ===============================
+# APP SETUP
+# ===============================
 
 app = FastAPI()
 BASE_DIR = Path(__file__).parent
 
-# Serve static files
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
-# All connected players
-players = {}  # player_id -> Player instance
+# ===============================
+# PLAYER STORAGE
+# ===============================
+# player_id -> {
+#   "player": Player,
+#   "last_seen": float
+# }
+players = {}
+
+PLAYER_TIMEOUT = 15  # seconds without activity before cleanup
 
 
-# ---------- FRONTEND ----------
-@app.get("/")
-def index():
-    return FileResponse(BASE_DIR / "index.html")
+# ===============================
+# UTILITIES
+# ===============================
 
-# ---------- INTERNAL STATE FUNCTION ----------
+def touch_player(player_id: str):
+    """Update last activity timestamp"""
+    if player_id in players:
+        players[player_id]["last_seen"] = time.time()
+
+
 def get_state(player: Player):
-    """
-    Returns full game state for a player
-    """
+    """Return full game state"""
     tiles_info = []
 
     for tile in player.tiles:
@@ -56,80 +73,144 @@ def get_state(player: Player):
     }
 
 
-# ---------- GAME API ----------
+# ===============================
+# BACKGROUND CLEANUP TASK
+# ===============================
+
+@app.on_event("startup")
+async def start_cleanup_task():
+    async def cleanup_loop():
+        while True:
+            now = time.time()
+            to_remove = []
+
+            for player_id, entry in players.items():
+                if now - entry["last_seen"] > PLAYER_TIMEOUT:
+                    to_remove.append(player_id)
+
+            for player_id in to_remove:
+                print(f"[CLEANUP] Removing inactive player {player_id}")
+                del players[player_id]
+
+            await asyncio.sleep(5)
+
+    asyncio.create_task(cleanup_loop())
+
+
+# ===============================
+# FRONTEND
+# ===============================
+
+@app.get("/")
+def index():
+    return FileResponse(BASE_DIR / "index.html")
+
+
+@app.get("/favicon.ico")
+def favicon():
+    return FileResponse(BASE_DIR / "static" / "favicon.ico")
+
+# ===============================
+# GAME API
+# ===============================
+
 @app.post("/api/start")
 async def start_game(request: Request):
-    """
-    Called once when the player clicks 'Start Game'
-    """
     data = await request.json()
     player_id = data.get("player_id")
 
     if not player_id:
         return JSONResponse({"error": "player_id missing"}, status_code=400)
 
-    players[player_id] = Player(
-        energy=10000,
-        env_bar=0,
-        tile_price=1000,
-        nb_rings=4
-    )
+    players[player_id] = {
+        "player": Player(
+            energy=10000,
+            env_bar=0,
+            tile_price=1000,
+            nb_rings=4
+        ),
+        "last_seen": time.time()
+    }
 
-    return get_state(players[player_id])
+    return get_state(players[player_id]["player"])
 
 
 @app.post("/api/buy_tile")
-async def api_buy_tile(request: Request):
+async def buy_tile(request: Request):
     data = await request.json()
     player_id = data.get("player_id")
     tile_id = data.get("tile_id")
 
-    player = players.get(player_id)
-    if not player:
-        return JSONResponse({"error": "player not found"}, status_code=404)
+    entry = players.get(player_id)
+    if not entry:
+        return {"status": "inactive"}
 
-    player.buy_tile(tile_id)
-    return get_state(player)
+
+    touch_player(player_id)
+    entry["player"].buy_tile(tile_id)
+    return get_state(entry["player"])
 
 
 @app.post("/api/buy_building")
-async def api_buy_building(request: Request):
+async def buy_building(request: Request):
     data = await request.json()
     player_id = data.get("player_id")
     tile_id = data.get("tile_id")
     building = data.get("building")
 
-    player = players.get(player_id)
-    if not player:
-        return JSONResponse({"error": "player not found"}, status_code=404)
+    entry = players.get(player_id)
+    if not entry:
+        return {"status": "inactive"}
 
-    player.buy_building(tile_id, building)
-    return get_state(player)
+
+    touch_player(player_id)
+    entry["player"].buy_building(tile_id, building)
+    return get_state(entry["player"])
 
 
 @app.post("/api/upgrade_building")
-async def api_upgrade_building(request: Request):
+async def upgrade_building(request: Request):
     data = await request.json()
     player_id = data.get("player_id")
     tile_id = data.get("tile_id")
 
-    player = players.get(player_id)
-    if not player:
-        return JSONResponse({"error": "player not found"}, status_code=404)
+    entry = players.get(player_id)
+    if not entry:
+        return {"status": "inactive"}
 
-    player.upgrade_building(tile_id)
-    return get_state(player)
+
+    touch_player(player_id)
+    entry["player"].upgrade_building(tile_id)
+    return get_state(entry["player"])
 
 
 @app.post("/api/game_tick")
-async def api_game_tick(request: Request):
+async def game_tick(request: Request):
     data = await request.json()
     player_id = data.get("player_id")
 
-    player = players.get(player_id)
-    if not player:
-        return JSONResponse({"error": "player not found"}, status_code=404)
+    entry = players.get(player_id)
+    if not entry:
+        # Player already cleaned up → silently ignore
+        return {"status": "inactive"}
+
+    touch_player(player_id)
+    player = entry["player"]
 
     player.money_env_update()
-    return {"energy": player.energy, "env_bar": player.env_bar}
+    return {
+        "energy": player.energy,
+        "env_bar": player.env_bar
+    }
+
+
+
+@app.post("/api/disconnect")
+async def disconnect(request: Request):
+    data = await request.json()
+    player_id = data.get("player_id")
+    if player_id in players:
+        del players[player_id]
+        print(f"[DISCONNECT] Player {player_id} removed")
+    return {"status": "ok"}
 
